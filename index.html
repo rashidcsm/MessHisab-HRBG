@@ -130,6 +130,19 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 .loading { text-align: center; padding: 8px; font-size: 14px; color: #718096; }
 .saving-toast { position: fixed; bottom: 20px; right: 20px; background: #2f855a; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 15px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
 .saving-toast.show { opacity: 1; }
+
+/* ===== নিজস্ব ডায়ালগ (alert/confirm/prompt-এর বদলে) ===== */
+.dlg-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
+.dlg-overlay.show { display: flex; }
+.dlg-box { background: #fff; border-radius: 14px; padding: 20px; width: 100%; max-width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.dlg-msg { font-size: 17px; color: #2d3748; margin-bottom: 14px; white-space: pre-line; line-height: 1.5; }
+.dlg-input { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 17px; outline: none; margin-bottom: 14px; display: none; }
+.dlg-input:focus { border-color: #3182ce; }
+.dlg-btns { display: flex; gap: 10px; justify-content: flex-end; }
+.dlg-btns button { padding: 10px 20px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+.dlg-ok { background: #3182ce; color: #fff; }
+.dlg-cancel { background: #e2e8f0; color: #4a5568; }
+
 @media (max-width: 480px) {
   h1 { font-size: 22px; }
   .stat .value, .sub-card .value { font-size: 22px; }
@@ -150,10 +163,23 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   .form-inner .full { grid-column: span 1; }
 }
 </style>
+
+<!-- JS ত্রুটি হলে লোডিং লেখার জায়গায় দেখাবে (ডিবাগের জন্য) -->
+<script>
+  window.onerror = function (msg, src, line) {
+    var el = document.getElementById('loadingMsg');
+    if (el) {
+      el.style.display = 'block';
+      el.style.color = '#c53030';
+      el.textContent = '⚠️ JS ত্রুটি: ' + msg + ' (লাইন ' + line + ')';
+    }
+    return false;
+  };
+</script>
 </head>
 <body>
 
-  <h1>🏠মেসের হিসেব হারবাং</h1>
+  <h1>🏠মেস হিসাব হারবাং</h1>
 
   <div class="admin-bar">
     <span class="admin-badge" id="adminBadge">🔒 Viewer</span>
@@ -286,6 +312,18 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
   <div class="saving-toast" id="savingToast">☁️ সেভ হচ্ছে...</div>
 
+  <!-- নিজস্ব ডায়ালগ -->
+  <div class="dlg-overlay" id="dlgOverlay">
+    <div class="dlg-box">
+      <div class="dlg-msg" id="dlgMsg"></div>
+      <input type="password" class="dlg-input" id="dlgInput" placeholder="Admin Key" />
+      <div class="dlg-btns">
+        <button class="dlg-cancel" id="dlgCancel">বাতিল</button>
+        <button class="dlg-ok" id="dlgOk">ঠিক আছে</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   /* =========================================================
      ★★★ আপনার তথ্য ★★★
@@ -302,6 +340,62 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   let editIndex = -1;
   let isAdmin = false;
   let selectedMonth = null;
+
+  /* ===== নিরাপদ localStorage (WebView-এ বন্ধ থাকলেও ক্র্যাশ করবে না) ===== */
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function lsRemove(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+  /* ===== নিজস্ব ডায়ালগ: alert / confirm / prompt-এর বদলে ===== */
+  var _dlgCancelPrev = null;
+  function openDialog(msg, mode) {
+    return new Promise(function (resolve) {
+      if (_dlgCancelPrev) { var p = _dlgCancelPrev; _dlgCancelPrev = null; p(); }
+      var ov = document.getElementById('dlgOverlay');
+      var inp = document.getElementById('dlgInput');
+      var okBtn = document.getElementById('dlgOk');
+      var cancelBtn = document.getElementById('dlgCancel');
+      document.getElementById('dlgMsg').textContent = msg;
+      inp.value = '';
+      inp.style.display = (mode === 'prompt') ? 'block' : 'none';
+      cancelBtn.style.display = (mode === 'alert') ? 'none' : 'inline-block';
+      ov.classList.add('show');
+
+      function close(val) {
+        ov.classList.remove('show');
+        _dlgCancelPrev = null;
+        resolve(val);
+      }
+      _dlgCancelPrev = function () { resolve(mode === 'prompt' ? null : false); };
+      okBtn.onclick = function () { close(mode === 'prompt' ? inp.value : true); };
+      cancelBtn.onclick = function () { close(mode === 'prompt' ? null : false); };
+      inp.onkeydown = function (e) { if (e.key === 'Enter') okBtn.onclick(); };
+      if (mode === 'prompt') setTimeout(function () { inp.focus(); }, 80);
+    });
+  }
+  function showAlert(msg)   { return openDialog(msg, 'alert'); }
+  function showConfirm(msg) { return openDialog(msg, 'confirm'); }
+  function showPrompt(msg)  { return openDialog(msg, 'prompt'); }
+
+  /* ===== নেটওয়ার্ক (XHR — পুরোনো WebView-এও চলে) ===== */
+  function httpRequest(method, url, body) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      xhr.timeout = 30000;
+      if (method === 'POST') xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+      xhr.onload = function () {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch (e) {
+          reject(new Error('সার্ভার JSON দেয়নি। Apps Script ডিপ্লয়মেন্টে "Who has access = Anyone" আছে কিনা দেখুন'));
+        }
+      };
+      xhr.onerror = function () { reject(new Error('নেটওয়ার্ক/CORS সমস্যা')); };
+      xhr.ontimeout = function () { reject(new Error('সময় শেষ (timeout)')); };
+      xhr.send(body || null);
+    });
+  }
 
   /* ===== হেল্পার ===== */
   function toBn(num) { return Number(num).toLocaleString('bn-BD'); }
@@ -352,19 +446,17 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
   /* ===== localStorage ===== */
   function save() {
-    try {
-      localStorage.setItem('messEntries', JSON.stringify(entries));
-      localStorage.setItem('messMeals', JSON.stringify(meals));
-      localStorage.setItem('messExpenses', JSON.stringify(expenses));
-      localStorage.setItem('messJoma', JSON.stringify(joma));
-    } catch (e) { console.log('localStorage save failed:', e); }
+    lsSet('messEntries', JSON.stringify(entries));
+    lsSet('messMeals', JSON.stringify(meals));
+    lsSet('messExpenses', JSON.stringify(expenses));
+    lsSet('messJoma', JSON.stringify(joma));
   }
   function loadFromLocal() {
     try {
-      const e = localStorage.getItem('messEntries');
-      const m = localStorage.getItem('messMeals');
-      const x = localStorage.getItem('messExpenses');
-      const j = localStorage.getItem('messJoma');
+      const e = lsGet('messEntries');
+      const m = lsGet('messMeals');
+      const x = lsGet('messExpenses');
+      const j = lsGet('messJoma');
       if (e) entries = JSON.parse(e) || [];
       if (m) meals = JSON.parse(m) || {};
       if (x) expenses = JSON.parse(x) || {};
@@ -377,7 +469,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     return (joma[monthKey] && joma[monthKey][name]) || 0;
   }
   function setJoma(monthKey, name, value) {
-    if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
+    if (!isAdmin) { showAlert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
     if (!joma[monthKey]) joma[monthKey] = {};
     joma[monthKey][name] = Number(value) || 0;
     save();
@@ -488,7 +580,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
   /* ===== এন্ট্রি সেভ/এডিট ===== */
   function saveEntry() {
-    if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
+    if (!isAdmin) { showAlert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
 
     const name = document.getElementById('nameInput').value.trim();
     const startRaw = document.getElementById('startInput').value.trim();
@@ -496,24 +588,24 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     const amountRaw = document.getElementById('amountInput').value;
     const amount = amountRaw === '' ? 0 : Number(amountRaw);
 
-    if (!name) { alert('নাম লিখুন'); return; }
+    if (!name) { showAlert('নাম লিখুন'); return; }
 
     let start = startRaw;
     if (start && !/^\d{4}-\d{2}$/.test(start)) {
-      alert('শুরুর মাস YYYY-MM ফরম্যাটে দিন (যেমন 2026-10)');
+      showAlert('শুরুর মাস YYYY-MM ফরম্যাটে দিন (যেমন 2026-10)');
       return;
     }
     if (!start) start = currentMonthKey();
 
     let end = endRaw;
     if (end && !/^\d{4}-\d{2}$/.test(end)) {
-      alert('শেষের মাস YYYY-MM ফরম্যাটে দিন (যেমন 2026-11)');
+      showAlert('শেষের মাস YYYY-MM ফরম্যাটে দিন (যেমন 2026-11)');
       return;
     }
 
     if (editIndex === -1) {
       if (entries.some(e => e.name === name)) {
-        alert('এই নামে ইতিমধ্যে এন্ট্রি আছে');
+        showAlert('এই নামে ইতিমধ্যে এন্ট্রি আছে');
         return;
       }
       entries.push({ name, start, end });
@@ -551,7 +643,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   }
 
   function editEntry(index) {
-    if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
+    if (!isAdmin) { showAlert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
     const e = entries[index];
     if (!e) return;
     document.getElementById('nameInput').value = e.name;
@@ -562,21 +654,22 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     editIndex = index;
     openForm();
     document.getElementById('nameInput').focus();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   }
 
   /* ===== সদস্য চলে গেল ===== */
-  function markLeft(index) {
+  async function markLeft(index) {
     if (!isAdmin) return;
     const e = entries[index];
     if (!e) return;
     const nextMonth = getNextMonthKey(currentMonthKey());
-    if (!confirm('"' + e.name + '" কে ' + formatMonthBn(nextMonth) + ' থেকে চলে গেছে হিসেবে চিহ্নিত করবেন?')) return;
+    const ok = await showConfirm('"' + e.name + '" কে ' + formatMonthBn(nextMonth) + ' থেকে চলে গেছে হিসেবে চিহ্নিত করবেন?');
+    if (!ok) return;
     entries[index].end = currentMonthKey();
     save();
     render();
     saveAllToSheets(true);
-    alert('"' + e.name + '" ' + formatMonthBn(currentMonthKey()) + ' পর্যন্ত সদস্য হিসেবে থাকবেন।');
+    showAlert('"' + e.name + '" ' + formatMonthBn(currentMonthKey()) + ' পর্যন্ত সদস্য হিসেবে থাকবেন।');
   }
 
   function getNextMonthKey(mk) {
@@ -588,25 +681,27 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   }
 
   /* ===== সদস্য ফিরে এলো ===== */
-  function markReturned(index) {
+  async function markReturned(index) {
     if (!isAdmin) return;
     const e = entries[index];
     if (!e) return;
-    if (!confirm('"' + e.name + '" আবার সদস্য হিসেবে ফিরে এসেছেন?')) return;
+    const ok = await showConfirm('"' + e.name + '" আবার সদস্য হিসেবে ফিরে এসেছেন?');
+    if (!ok) return;
     entries[index].end = '';
     save();
     render();
     saveAllToSheets(true);
-    alert('"' + e.name + '" আবার সক্রিয় সদস্য হয়েছেন।');
+    showAlert('"' + e.name + '" আবার সক্রিয় সদস্য হয়েছেন।');
   }
 
   /* ===== সদস্য সম্পূর্ণ মুছি ===== */
-  function deleteEntry(index) {
-    if (!isAdmin) { alert('শুধু অ্যাডমিন ডিলিট করতে পারবেন'); return; }
+  async function deleteEntry(index) {
+    if (!isAdmin) { showAlert('শুধু অ্যাডমিন ডিলিট করতে পারবেন'); return; }
     const e = entries[index];
     if (!e) return;
     const name = e.name;
-    if (!confirm('⚠️ "' + name + '" কে সম্পূর্ণ মুছে ফেলবেন?\n\nসব মাসের জমা ও মিল ডেটাও মুছে যাবে!\n\nএটা ফিরিয়ে আনা যাবে না।')) return;
+    const ok = await showConfirm('⚠️ "' + name + '" কে সম্পূর্ণ মুছে ফেলবেন?\n\nসব মাসের জমা ও মিল ডেটাও মুছে যাবে!\n\nএটা ফিরিয়ে আনা যাবে না।');
+    if (!ok) return;
 
     Object.keys(joma).forEach(m => {
       if (joma[m] && joma[m][name] !== undefined) delete joma[m][name];
@@ -620,7 +715,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     save();
     render();
     saveAllToSheets(true);
-    alert('"' + name + '" সম্পূর্ণ মুছে গেছে।');
+    showAlert('"' + name + '" সম্পূর্ণ মুছে গেছে।');
   }
 
   /* ===== মিল ===== */
@@ -628,7 +723,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     return (meals[monthKey] && meals[monthKey][name] && meals[monthKey][name][day]) || 0;
   }
   function setMeal(monthKey, name, day, value) {
-    if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
+    if (!isAdmin) { showAlert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
     if (!meals[monthKey]) meals[monthKey] = {};
     if (!meals[monthKey][name]) meals[monthKey][name] = {};
     if (value === '' || value === null || value === undefined) {
@@ -652,7 +747,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     return (expenses[monthKey] && expenses[monthKey][day]) || { desc: '', amount: '' };
   }
   function setExpense(monthKey, day, field, value) {
-    if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
+    if (!isAdmin) { showAlert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
     if (!expenses[monthKey]) expenses[monthKey] = {};
     if (!expenses[monthKey][day]) expenses[monthKey][day] = { desc: '', amount: '' };
     expenses[monthKey][day][field] = value;
@@ -889,7 +984,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
       const i = entries.findIndex(e => e.name === m.name);
       const personJoma = getJoma(monthKey, m.name);
       const isLeaving = m.end && m.end === monthKey;
-      
+
       let dateText = 'শুরু: ' + formatMonthBn(m.start);
       if (m.end) dateText += ' | শেষ: ' + formatMonthBn(m.end);
       if (isLeaving) dateText += ' ⚠️ এই মাস শেষ';
@@ -911,7 +1006,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
         <td class="admin-only" style="text-align:right; width:1%; white-space:nowrap;">
           <div class="actions">
             <button class="btn-sm btn-edit" onclick="editEntry(${i})">এডিট</button>
-            ${m.end 
+            ${m.end
               ? `<button class="btn-sm btn-back" onclick="markReturned(${i})">ফিরে এসেছে</button>`
               : `<button class="btn-sm btn-leave" onclick="markLeft(${i})">চলে গেছে</button>`
             }
@@ -942,23 +1037,24 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     }
   }
 
-  /* ===== অ্যাডমিন ===== */
-  function toggleAdmin() {
+  /* ===== অ্যাডমিন (prompt/alert ছাড়া) ===== */
+  async function toggleAdmin() {
     if (isAdmin) {
       isAdmin = false;
-      localStorage.removeItem('isAdminKey');
+      lsRemove('isAdminKey');
       document.body.classList.remove('is-admin');
-      alert('লগআউট সম্পন্ন');
+      showSavingToast('লগআউট সম্পন্ন');
     } else {
-      const key = prompt("Admin Key দিন:");
+      const key = await showPrompt('Admin Key দিন:');
       if (key === null) return;
       if (key === SECRET_KEY) {
         isAdmin = true;
-        localStorage.setItem('isAdminKey', SECRET_KEY);
+        lsSet('isAdminKey', SECRET_KEY);
         document.body.classList.add('is-admin');
-        alert('✅ অ্যাডমিন মোড চালু হয়েছে');
+        showSavingToast('✅ অ্যাডমিন মোড চালু হয়েছে');
       } else {
-        alert('❌ ভুল key');
+        await showAlert('❌ ভুল key');
+        return;
       }
     }
     render();
@@ -999,8 +1095,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     }
 
     try {
-      const res = await fetch(API_URL);
-      const result = await res.json();
+      const result = await httpRequest('GET', API_URL + '?t=' + Date.now());
 
       if (result.status === 'success') {
         const rows = result.members || [];
@@ -1012,10 +1107,10 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
           let start = (r[1] || '').toString().trim();
           let end = (r[2] || '').toString().trim();
-          
+
           if (start && !/^\d{4}-\d{2}$/.test(start)) start = '';
           if (end && !/^\d{4}-\d{2}$/.test(end)) end = '';
-          
+
           if (!start) start = getSystemMonthKey();
 
           newEntries.push({ name, start, end });
@@ -1086,11 +1181,11 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   /* ===== সেভ ===== */
   async function saveAllToSheets(silent) {
     if (!isAdmin) {
-      if (!silent) alert('শুধু অ্যাডমিন সেভ করতে পারবেন');
+      if (!silent) showAlert('শুধু অ্যাডমিন সেভ করতে পারবেন');
       return;
     }
     if (API_URL.includes('YOUR_SCRIPT_ID')) {
-      if (!silent) alert('আগে API_URL সেট করুন');
+      if (!silent) showAlert('আগে API_URL সেট করুন');
       return;
     }
 
@@ -1110,29 +1205,25 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     };
 
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-      const result = await res.json();
+      const result = await httpRequest('POST', API_URL, JSON.stringify(payload));
 
       if (result.status === 'success') {
         if (!silent) {
-          alert('✅ Google Sheets-এ সেভ হয়েছে\n' +
-            'সদস্য: ' + (result.counts?.members || 0) + '\n' +
-            'মিল: ' + (result.counts?.meals || 0) + '\n' +
-            'খরচ: ' + (result.counts?.expenses || 0) + '\n' +
-            'জমা: ' + (result.counts?.joma || 0));
+          const c = result.counts || {};
+          showAlert('✅ Google Sheets-এ সেভ হয়েছে\n' +
+            'সদস্য: ' + (c.members || 0) + '\n' +
+            'মিল: ' + (c.meals || 0) + '\n' +
+            'খরচ: ' + (c.expenses || 0) + '\n' +
+            'জমা: ' + (c.joma || 0));
         } else {
           showSavingToast('✅ সেভ হয়েছে');
         }
       } else {
-        if (!silent) alert('❌ সেভ ব্যর্থ: ' + (result.message || 'unknown'));
+        if (!silent) showAlert('❌ সেভ ব্যর্থ: ' + (result.message || 'unknown'));
         else { console.log('Save failed:', result.message); showSavingToast('❌ সেভ ব্যর্থ: ' + (result.message || 'unknown')); }
       }
     } catch (e) {
-      if (!silent) alert('❌ সেভ ব্যর্থ: ' + e.message);
+      if (!silent) showAlert('❌ সেভ ব্যর্থ: ' + e.message);
       else { console.log('Auto-save failed:', e); showSavingToast('❌ নেটওয়ার্ক সমস্যা — সেভ হয়নি'); }
     }
   }
@@ -1153,18 +1244,16 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   /* ===== পেজ লোড ===== */
   window.addEventListener('load', () => {
     selectedMonth = getSystemMonthKey();
-    if (localStorage.getItem('isAdminKey') === SECRET_KEY) {
+    if (lsGet('isAdminKey') === SECRET_KEY) {
       isAdmin = true;
       document.body.classList.add('is-admin');
     }
     loadFromLocal();
     render();
-    loadFromSheets().then(() => {
-      render();
-    });
+    loadFromSheets();
   });
 
-  /* ===== অটো মাস ডিটেক্ট (কোনো অ্যানিমেশন নেই) ===== */
+  /* ===== অটো মাস ডিটেক্ট ===== */
   (function autoMonthDetect() {
     let lastSystemMonth = getSystemMonthKey();
     let isReloading = false;
@@ -1181,7 +1270,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
           selectedMonth = nowSystem;
           showSavingToast('🎉 নতুন মাস শুরু হয়েছে! ডেটা রিফ্রেশ হচ্ছে...');
           setTimeout(() => {
-            loadFromSheets().finally(() => { isReloading = false; });
+            loadFromSheets().then(() => { isReloading = false; }, () => { isReloading = false; });
           }, 500);
         } else {
           showSavingToast('🎉 নতুন মাস শুরু! ড্রপডাউনে যোগ হয়েছে');
