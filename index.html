@@ -3,141 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>মেসের হিসেব</title>
+<title>মেসের হিসেব(HRBG)</title>
 <style>
 * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-body {
-  margin: 0; padding: 12px;
-  background: #f0f4f8; color: #1a202c;
-  max-width: 900px; margin: 0 auto;
-}
+body { margin: 0; padding: 12px; background: #f0f4f8; color: #1a202c; max-width: 900px; margin: 0 auto; }
 h1 { text-align: center; color: #2d3748; margin: 6px 0 10px; font-size: 28px; }
-
-/* ==== অ্যাডমিন বার ==== */
-.admin-bar {
-  display: flex; justify-content: center; align-items: center;
-  gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
-}
-.admin-badge {
-  display: inline-block; padding: 8px 18px; border-radius: 16px;
-  font-size: 16px; font-weight: bold;
-  background: #e2e8f0; color: #4a5568;
-}
+.admin-bar { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.admin-badge { display: inline-block; padding: 8px 18px; border-radius: 16px; font-size: 16px; font-weight: bold; background: #e2e8f0; color: #4a5568; }
 .admin-badge.on { background: #c6f6d5; color: #2f855a; }
-.btn-admin {
-  padding: 8px 18px; border: none; border-radius: 16px;
-  font-size: 16px; font-weight: bold; cursor: pointer;
-  background: #3182ce; color: #fff;
-}
+.btn-admin { padding: 8px 18px; border: none; border-radius: 16px; font-size: 16px; font-weight: bold; cursor: pointer; background: #3182ce; color: #fff; }
 .btn-admin:hover { background: #2b6cb0; }
-.btn-save-sheet {
-  padding: 10px 22px; border: none; border-radius: 16px;
-  font-size: 16px; font-weight: bold; cursor: pointer;
-  background: #2f855a; color: #fff;
-}
+.btn-save-sheet { padding: 10px 22px; border: none; border-radius: 16px; font-size: 16px; font-weight: bold; cursor: pointer; background: #2f855a; color: #fff; }
 .btn-save-sheet:hover { background: #276749; }
-
-/* ==== সেকেন্ড হেডার ==== */
-.sub-header {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 10px; margin-bottom: 16px;
-}
-.sub-card {
-  background: #fff; border-radius: 10px; padding: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center;
-}
+.month-selector { background: #fff; border-radius: 12px; padding: 12px 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 10px; }
+.month-selector label { font-weight: 600; color: #2d3748; font-size: 16px; white-space: nowrap; }
+.month-selector select { flex: 1; padding: 10px 14px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 16px; font-family: inherit; outline: none; background: #f7fafc; cursor: pointer; }
+.month-selector select:focus { border-color: #3182ce; background: #fff; }
+.sub-header { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.sub-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
 .sub-card .label { font-size: 18px; color: #4a5568; font-weight: 600; }
 .sub-card .value { font-size: 34px; font-weight: bold; margin-top: 4px; color: #2b6cb0; }
 .sub-card.right .value { color: #805ad5; }
-
-/* ==== সামারি কার্ড ==== */
-.summary-card {
-  background: #fff; border-radius: 14px; padding: 18px 12px;
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-  margin-bottom: 18px;
-}
+.summary-card { background: #fff; border-radius: 14px; padding: 18px 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.08); margin-bottom: 18px; }
 .stat { text-align: center; padding: 10px 4px; border-radius: 10px; }
 .stat .label { font-size: 18px; font-weight: 600; color: #4a5568; margin-bottom: 6px; }
 .stat .value { font-size: 30px; font-weight: bold; }
-.stat.joma   { background: #f0fff4; } .stat.joma .value { color: #2f855a; }
-.stat.khoroch{ background: #fff5f5; } .stat.khoroch .value { color: #c53030; }
+.stat.joma { background: #f0fff4; } .stat.joma .value { color: #2f855a; }
+.stat.khoroch { background: #fff5f5; } .stat.khoroch .value { color: #c53030; }
 .stat.oboshishto { background: #ebf8ff; } .stat.oboshishto .value { color: #2b6cb0; }
-
-/* ==== ট্রগল ==== */
-.toggle-row {
-  display: flex; align-items: center; justify-content: space-between;
-  background: #fff; padding: 14px 18px; border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 10px;
-  cursor: pointer; user-select: none;
-}
+.toggle-row { display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 14px 18px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 10px; cursor: pointer; user-select: none; }
 .toggle-row span { font-weight: 600; color: #2d3748; font-size: 17px; }
-.switch {
-  position: relative; width: 50px; height: 28px;
-  background: #cbd5e0; border-radius: 20px; transition: 0.3s;
-}
-.switch::after {
-  content: ''; position: absolute; width: 22px; height: 22px;
-  background: #fff; border-radius: 50%; top: 3px; left: 3px;
-  transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
+.switch { position: relative; width: 50px; height: 28px; background: #cbd5e0; border-radius: 20px; transition: 0.3s; }
+.switch::after { content: ''; position: absolute; width: 22px; height: 22px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 .switch.active { background: #3182ce; }
 .switch.active::after { transform: translateX(22px); }
-
-/* ==== ইনপুট ফর্ম ==== */
-.form-box {
-  background: #fff; border-radius: 12px; padding: 0 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.35s ease, padding 0.35s ease;
-  margin-bottom: 0;
-}
-.form-box.open { max-height: 500px; padding: 16px; margin-bottom: 16px; }
+.form-box { background: #fff; border-radius: 12px; padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; margin-bottom: 0; }
+.form-box.open { max-height: 800px; padding: 16px; margin-bottom: 16px; }
 .form-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.form-inner input {
-  padding: 12px 14px; border: 1px solid #cbd5e0;
-  border-radius: 8px; font-size: 17px; outline: none; width: 100%;
-}
-.form-inner input:focus { border-color: #3182ce; }
-.form-inner button {
-  grid-column: span 2; padding: 12px; border: none;
-  border-radius: 8px; background: #3182ce; color: #fff;
-  font-size: 17px; cursor: pointer; font-weight: bold;
-}
+.form-inner input, .form-inner select { padding: 12px 14px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 17px; outline: none; width: 100%; font-family: inherit; }
+.form-inner input:focus, .form-inner select:focus { border-color: #3182ce; }
+.form-inner button { grid-column: span 2; padding: 12px; border: none; border-radius: 8px; background: #3182ce; color: #fff; font-size: 17px; cursor: pointer; font-weight: bold; }
 .form-inner button:hover { background: #2b6cb0; }
+.form-inner .full { grid-column: span 2; }
 .hint { font-size: 13px; color: #718096; grid-column: span 2; text-align: center; }
-
-/* ==== মেইন টেবিল (নাম ও জমা) ==== */
 table { width: 100%; border-collapse: collapse; }
-th, td {
-  padding: 11px 12px; text-align: left;
-  border-bottom: 1px solid #e2e8f0; font-size: 16px;
-}
-thead th {
-  background: #2d3748; color: #fff; font-weight: 600;
-  font-size: 15px; text-transform: uppercase;
-}
+th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 16px; }
+thead th { background: #2d3748; color: #fff; font-weight: 600; font-size: 15px; text-transform: uppercase; }
 tbody tr:hover { background: #f7fafc; }
 tbody tr:last-child td { border-bottom: none; }
-
 .name-cell { font-weight: 600; color: #2d3748; }
-.date-small {
-  display: block; font-size: 13px;
-  color: #718096; font-weight: normal; margin-top: 2px;
-}
-.amount-cell { font-weight: 600; color: #2f855a; }
-.actions { display: flex; gap: 6px; justify-content: flex-end; }
-.btn-sm {
-  border: none; padding: 6px 12px; border-radius: 6px;
-  cursor: pointer; font-size: 14px; font-weight: 600;
-}
+.date-small { display: block; font-size: 13px; color: #718096; font-weight: normal; margin-top: 2px; }
+.date-small.inactive { color: #c53030; font-weight: 600; }
+.joma-input { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 16px; font-weight: 600; color: #2f855a; text-align: right; font-family: inherit; outline: none; }
+.joma-input:focus { border-color: #3182ce; background: #ebf8ff; }
+.joma-input:disabled { background: #f7fafc; color: #2f855a; cursor: not-allowed; }
+.actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.btn-sm { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
 .btn-edit { background: #bee3f8; color: #2b6cb0; }
 .btn-edit:hover { background: #90cdf4; }
 .btn-del { background: #fed7d7; color: #c53030; }
 .btn-del:hover { background: #fc8181; color: #fff; }
+.btn-leave { background: #feebc8; color: #7b341e; }
+.btn-leave:hover { background: #fbd38d; }
+.btn-back { background: #c6f6d5; color: #2f855a; }
+.btn-back:hover { background: #9ae6b4; }
 .empty { text-align: center; padding: 20px; color: #a0aec0; font-size: 15px; }
-
-/* ★ admin-only */
 .admin-only { display: none !important; }
 body.is-admin .admin-only { display: block !important; }
 body.is-admin th.admin-only,
@@ -145,107 +75,42 @@ body.is-admin td.admin-only { display: table-cell !important; }
 body.is-admin .toggle-row.admin-only { display: flex !important; }
 body.is-admin button.admin-only,
 body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
-
-/* ==== সেকশন হেডিং ==== */
-.section-head {
-  display: flex; justify-content: space-between; align-items: center;
-  color: #fff; padding: 14px 18px; border-radius: 12px;
-  font-weight: 600; font-size: 19px; cursor: pointer;
-  user-select: none; margin-bottom: 8px;
-}
+.section-head { display: flex; justify-content: space-between; align-items: center; color: #fff; padding: 14px 18px; border-radius: 12px; font-weight: 600; font-size: 19px; cursor: pointer; user-select: none; margin-bottom: 8px; }
 .section-head:hover { opacity: 0.92; }
 .section-head .title { display: flex; align-items: center; gap: 8px; }
-.section-head .arrow {
-  display: inline-block; transition: transform 0.3s;
-  font-size: 14px;
-}
+.section-head .arrow { display: inline-block; transition: transform 0.3s; font-size: 14px; }
 .section-head.collapsed .arrow { transform: rotate(-90deg); }
 .section-head .total-meal { font-size: 17px; }
-
-.joma-head { background: #2b6cb0; }
-.joma-head .total-meal { color: #bee3f8; }
-.meal-head { background: #2d3748; }
-.meal-head .total-meal { color: #f6e05e; }
-.khoroch-head { background: #742a2a; }
-.khoroch-head .total-meal { color: #fbb6ce; }
-.member-head { background: #22543d; }
-.member-head .total-meal { color: #9ae6b4; }
-
-/* ==== কলাপ্স বডি ==== */
-.collapsible-body {
-  overflow: hidden; max-height: 0;
-  transition: max-height 0.4s ease;
-  background: #fff; border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  margin-bottom: 16px;
-}
+.joma-head { background: #2b6cb0; } .joma-head .total-meal { color: #bee3f8; }
+.meal-head { background: #2d3748; } .meal-head .total-meal { color: #f6e05e; }
+.khoroch-head { background: #742a2a; } .khoroch-head .total-meal { color: #fbb6ce; }
+.member-head { background: #22543d; } .member-head .total-meal { color: #9ae6b4; }
+.collapsible-body { overflow: hidden; max-height: 0; transition: max-height 0.4s ease; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; }
 .collapsible-body.open { max-height: 6000px; }
-.collapsible-body .meal-table-wrap {
-  border-radius: 12px; box-shadow: none; margin-bottom: 0;
-}
+.collapsible-body .meal-table-wrap { border-radius: 12px; box-shadow: none; margin-bottom: 0; }
 .collapsible-body table { border-collapse: collapse; }
-
 .meal-table-wrap { background: #fff; overflow-x: auto; }
 .meal-table { width: 100%; border-collapse: collapse; min-width: 400px; }
-.meal-table th, .meal-table td {
-  padding: 9px 10px; border: 1px solid #e2e8f0;
-  font-size: 16px; text-align: center;
-}
-.meal-table thead th {
-  background: #edf2f7; color: #2d3748;
-  font-size: 15px; font-weight: 700;
-  position: sticky; top: 0;
-}
-.meal-table thead th:first-child {
-  background: #4a5568; color: #fff; min-width: 80px;
-}
-.date-cell {
-  background: #f7fafc; font-size: 14px; color: #4a5568;
-  font-weight: 600; white-space: nowrap;
-}
-.meal-input {
-  width: 100%; border: none; text-align: center;
-  font-size: 16px; padding: 6px 2px; outline: none;
-  background: transparent; font-weight: 600; color: #2d3748;
-  font-family: inherit;
-}
+.meal-table th, .meal-table td { padding: 9px 10px; border: 1px solid #e2e8f0; font-size: 16px; text-align: center; }
+.meal-table thead th { background: #edf2f7; color: #2d3748; font-size: 15px; font-weight: 700; position: sticky; top: 0; }
+.meal-table thead th:first-child { background: #4a5568; color: #fff; min-width: 80px; }
+.date-cell { background: #f7fafc; font-size: 14px; color: #4a5568; font-weight: 600; white-space: nowrap; }
+.meal-input { width: 100%; border: none; text-align: center; font-size: 16px; padding: 6px 2px; outline: none; background: transparent; font-weight: 600; color: #2d3748; font-family: inherit; }
 .meal-input:focus { background: #ebf8ff; border-radius: 4px; }
-.meal-input::-webkit-outer-spin-button,
-.meal-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.meal-input::-webkit-outer-spin-button, .meal-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .meal-input { -moz-appearance: textfield; }
 .meal-input:disabled { color: #4a5568; cursor: not-allowed; background: #f7fafc; }
-
-/* খরচ টেবিল */
 .khoroch-table { table-layout: auto; }
 .khoroch-table thead th:first-child { background: #742a2a; }
 .khoroch-input-desc { text-align: left !important; padding-left: 10px !important; }
-.khoroch-input-amount {
-  text-align: right !important; padding-right: 10px !important;
-  color: #c53030; width: 100%; min-width: 80px;
-  font-variant-numeric: tabular-nums;
-}
-.khoroch-table td:last-child {
-  width: 1%; white-space: nowrap; padding: 6px 8px;
-}
-
-/* মোট রো */
-.meal-total-row td {
-  background: #fefcbf; font-weight: bold;
-  color: #744210; font-size: 16px;
-}
+.khoroch-input-amount { text-align: right !important; padding-right: 10px !important; color: #c53030; width: 100%; min-width: 80px; font-variant-numeric: tabular-nums; }
+.khoroch-table td:last-child { width: 1%; white-space: nowrap; padding: 6px 8px; }
+.meal-total-row td { background: #fefcbf; font-weight: bold; color: #744210; font-size: 16px; }
 .meal-total-row td:first-child { background: #f6ad55; color: #fff; }
-.khoroch-total-row td {
-  background: #fed7d7; font-weight: bold;
-  color: #742a2a; font-size: 16px;
-}
+.khoroch-total-row td { background: #fed7d7; font-weight: bold; color: #742a2a; font-size: 16px; }
 .khoroch-total-row td:first-child { background: #e53e3e; color: #fff; }
-.member-total-row td {
-  background: #c6f6d5; font-weight: bold;
-  color: #22543d; font-size: 16px;
-}
+.member-total-row td { background: #c6f6d5; font-weight: bold; color: #22543d; font-size: 16px; }
 .member-total-row td:first-child { background: #22543d; color: #fff; }
-
-/* সদস্যের হিসাব */
 .member-table thead th { background: #22543d; color: #fff; font-size: 15px; }
 .member-table thead th:first-child { background: #22543d; }
 .member-table td { font-size: 15px; }
@@ -253,33 +118,18 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 .member-meal { color: #2b6cb0; font-weight: 600; }
 .member-cost { color: #805ad5; font-weight: 600; }
 .member-joma { color: #2f855a; font-weight: 600; }
-.member-baki  { color: #c53030; font-weight: 700; }
+.member-baki { color: #c53030; font-weight: 700; }
 .member-return { color: #2f855a; font-weight: 700; }
-.member-equal  { color: #718096; font-weight: 700; }
-.status-badge {
-  display: inline-block; padding: 4px 10px;
-  border-radius: 12px; font-size: 13px; font-weight: 700;
-}
+.member-equal { color: #718096; font-weight: 700; }
+.status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 700; }
 .badge-baki { background: #fed7d7; color: #c53030; }
 .badge-return { background: #c6f6d5; color: #2f855a; }
 .badge-equal { background: #e2e8f0; color: #4a5568; }
-
-/* লোডিং ব্যাজ */
-.loading {
-  text-align: center; padding: 8px; font-size: 14px;
-  color: #718096;
-}
-.saving-toast {
-  position: fixed; bottom: 20px; right: 20px;
-  background: #2f855a; color: #fff;
-  padding: 12px 20px; border-radius: 10px;
-  font-size: 15px; font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  opacity: 0; transition: opacity 0.3s;
-  pointer-events: none; z-index: 9999;
-}
+.badge-active { background: #c6f6d5; color: #22543d; }
+.badge-inactive { background: #fed7d7; color: #742a2a; }
+.loading { text-align: center; padding: 8px; font-size: 14px; color: #718096; }
+.saving-toast { position: fixed; bottom: 20px; right: 20px; background: #2f855a; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 15px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
 .saving-toast.show { opacity: 1; }
-
 @media (max-width: 480px) {
   h1 { font-size: 22px; }
   .stat .value, .sub-card .value { font-size: 22px; }
@@ -292,14 +142,19 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   .section-head { font-size: 16px; padding: 12px 14px; }
   .section-head .total-meal { font-size: 14px; }
   .btn-admin, .btn-save-sheet, .admin-badge { font-size: 14px; }
+  .month-selector { padding: 10px 12px; }
+  .month-selector label { font-size: 14px; }
+  .month-selector select { font-size: 14px; padding: 8px 10px; }
+  .form-inner { grid-template-columns: 1fr; }
+  .form-inner button { grid-column: span 1; }
+  .form-inner .full { grid-column: span 1; }
 }
 </style>
 </head>
 <body>
 
-  <h1>🏠 মেসের হিসেব</h1>
+  <h1>🏠মেসের হিসেব DHZ</h1>
 
-  <!-- ==== অ্যাডমিন বার ==== -->
   <div class="admin-bar">
     <span class="admin-badge" id="adminBadge">🔒 Viewer</span>
     <button class="btn-admin" id="loginBtn" onclick="toggleAdmin()">অ্যাডমিন লগইন</button>
@@ -309,7 +164,11 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   </div>
   <div class="loading" id="loadingMsg">Google Sheets থেকে ডেটা লোড হচ্ছে...</div>
 
-  <!-- ==== সেকেন্ড হেডার ==== -->
+  <div class="month-selector">
+    <label>📅 মাস:</label>
+    <select id="monthDropdown" onchange="onMonthChange(this.value)"></select>
+  </div>
+
   <div class="sub-header">
     <div class="sub-card">
       <div class="label">মোট মিল</div>
@@ -321,7 +180,6 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     </div>
   </div>
 
-  <!-- ==== সামারি কার্ড ==== -->
   <div class="summary-card">
     <div class="stat joma">
       <div class="label">জমা</div>
@@ -337,29 +195,25 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     </div>
   </div>
 
-  <!-- ==== ট্রগল ==== -->
   <div class="toggle-row admin-only" id="formToggle" onclick="toggleForm()">
     <span>➕ নতুন সদস্য যোগ করুন</span>
     <div class="switch" id="switch"></div>
   </div>
 
-  <!-- ==== ইনপুট ফর্ম ==== -->
   <div class="form-box" id="formBox">
     <div class="form-inner">
       <input type="text" id="nameInput" placeholder="নাম লিখুন" />
-      <input type="number" id="amountInput" placeholder="জমার পরিমাণ" />
+      <input type="text" id="startInput" placeholder="শুরুর মাস (YYYY-MM)" value="" />
+      <input type="text" id="endInput" placeholder="শেষের মাস (YYYY-MM) — খালি রাখলে চলবে" class="full" />
+      <input type="number" id="amountInput" placeholder="এই মাসের জমা" />
+      <div class="hint">শুরু ও শেষ মাসে ফরম্যাট: 2026-10</div>
       <button onclick="saveEntry()" id="submitBtn">যোগ করুন</button>
-      <div class="hint">নাম যোগ করলেই মিল হিসাবে নতুন কলাম তৈরি হবে</div>
     </div>
   </div>
 
-  <!-- ==== নাম ও জমার হিসাব (কলাপ্সিবল) ==== -->
   <div class="section-head joma-head collapsed" id="jomaHead" onclick="toggleSection('jomaBody','jomaHead')">
-    <span class="title">
-      <span class="arrow">▼</span>
-      💰 নাম ও জমার হিসাব
-    </span>
-    <span class="total-meal">মোট সদস্য: <span id="jomaCount">০</span></span>
+    <span class="title"><span class="arrow">▼</span>💰 নাম ও জমার হিসাব</span>
+    <span class="total-meal">সদস্য: <span id="jomaCount">০</span> জন | মোট: <span id="jomaTotalHead">৳ ০</span></span>
   </div>
   <div class="collapsible-body" id="jomaBody">
     <div class="meal-table-wrap">
@@ -367,7 +221,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
         <thead>
           <tr>
             <th>নাম</th>
-            <th>জমা</th>
+            <th>এই মাসের জমা (৳)</th>
             <th style="text-align:right;" class="admin-only">অ্যাকশন</th>
           </tr>
         </thead>
@@ -376,12 +230,8 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     </div>
   </div>
 
-  <!-- ==== মিল হিসাব ==== -->
   <div class="section-head meal-head collapsed" id="mealHead" onclick="toggleSection('mealBody','mealHead')">
-    <span class="title">
-      <span class="arrow">▼</span>
-      🍽️ মিল হিসাব
-    </span>
+    <span class="title"><span class="arrow">▼</span>🍽️ মিল হিসাব</span>
     <span class="total-meal">মোট মিল: <span id="mealTotalHead">০</span></span>
   </div>
   <div class="collapsible-body" id="mealBody">
@@ -393,12 +243,8 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     </div>
   </div>
 
-  <!-- ==== খরচ হিসাব ==== -->
   <div class="section-head khoroch-head collapsed" id="khorochHead" onclick="toggleSection('khorochBody','khorochHead')">
-    <span class="title">
-      <span class="arrow">▼</span>
-      💸 খরচ হিসাব
-    </span>
+    <span class="title"><span class="arrow">▼</span>💸 খরচ হিসাব</span>
     <span class="total-meal">মোট খরচ: <span id="khorochTotalHead">৳ ০</span></span>
   </div>
   <div class="collapsible-body" id="khorochBody">
@@ -416,13 +262,9 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     </div>
   </div>
 
-  <!-- ==== সদস্যের হিসাব ==== -->
   <div class="section-head member-head collapsed" id="memberHead" onclick="toggleSection('memberBody','memberHead')">
-    <span class="title">
-      <span class="arrow">▼</span>
-      👥 সদস্যের হিসাব
-    </span>
-    <span class="total-meal">মোট সদস্য: <span id="memberCount">০</span></span>
+    <span class="title"><span class="arrow">▼</span>👥 সদস্যের হিসাব</span>
+    <span class="total-meal">এই মাসে: <span id="memberCount">০</span> জন</span>
   </div>
   <div class="collapsible-body" id="memberBody">
     <div class="meal-table-wrap">
@@ -442,128 +284,205 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     </div>
   </div>
 
-  <!-- টোস্ট (auto-save message) -->
   <div class="saving-toast" id="savingToast">☁️ সেভ হচ্ছে...</div>
 
 <script>
   /* =========================================================
-     ★★★ আপনার তথ্য এখানে বসান ★★★
+     ★★★ আপনার তথ্য ★★★
      ========================================================= */
-  const API_URL = "https://script.google.com/macros/s/AKfycbw33zhthHk1_YTDMM_2678QzjrlY39PLlXWTse2dftCYAXsC7W77AfRp7rMjKAETZ05cg/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbwJiOIn5hG35UZOfLCJNq4-ITo_0agbgwkF0ILsYld9bifjYu4R7EcKTO9QO2IQC16vsQ/exec";
   const SECRET_KEY = "wasi";
   /* ========================================================= */
 
-  /* ===== ডেটা ===== */
   let entries = [];
   let meals   = {};
   let expenses = {};
+  let joma    = {};
+
   let editIndex = -1;
   let isAdmin = false;
+  let selectedMonth = null;
 
   /* ===== হেল্পার ===== */
   function toBn(num) { return Number(num).toLocaleString('bn-BD'); }
-
   function toBnDecimal(num, digits) {
     digits = (digits === undefined) ? 2 : digits;
     const n = Number(num);
     if (isNaN(n)) return '০';
-    return n.toLocaleString('bn-BD', {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits
-    });
+    return n.toLocaleString('bn-BD', { minimumFractionDigits: digits, maximumFractionDigits: digits });
   }
-
-  function currentMonthKey() {
+  function getSystemMonthKey() {
     const d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
   }
-  function daysInCurrentMonth() {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  function currentMonthKey() { return selectedMonth || getSystemMonthKey(); }
+  function daysInMonth(monthKey) {
+    const parts = monthKey.split('-');
+    return new Date(Number(parts[0]), Number(parts[1]), 0).getDate();
   }
+  function daysInCurrentMonth() { return daysInMonth(currentMonthKey()); }
   function formatDayBn(day) {
-    const d = new Date();
-    d.setDate(day);
+    const parts = currentMonthKey().split('-');
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, day);
     return d.getDate() + ' ' + d.toLocaleString('bn-BD', { month: 'short' });
+  }
+  function formatMonthBn(monthKey) {
+    if (!monthKey) return '';
+    const parts = monthKey.split('-');
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, 1);
+    return d.toLocaleString('bn-BD', { month: 'short', year: 'numeric' });
   }
   function safeId(name) {
     return 'n' + name.replace(/[^a-zA-Z0-9\u0980-\u09FF]/g, '_');
   }
+  function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
 
-  /* ===== localStorage সেভ/লোড ===== */
+  /* ===== মাস-ভিত্তিক সদস্য ফিল্টার ===== */
+  function wasMemberInMonth(entry, monthKey) {
+    if (entry.start && entry.start > monthKey) return false;
+    if (entry.end && entry.end < monthKey) return false;
+    return true;
+  }
+  function getMembersInMonth(monthKey) {
+    return entries.filter(e => wasMemberInMonth(e, monthKey));
+  }
+
+  /* ===== localStorage ===== */
   function save() {
     try {
       localStorage.setItem('messEntries', JSON.stringify(entries));
       localStorage.setItem('messMeals', JSON.stringify(meals));
       localStorage.setItem('messExpenses', JSON.stringify(expenses));
-    } catch (e) {
-      console.log('localStorage save failed:', e);
-    }
+      localStorage.setItem('messJoma', JSON.stringify(joma));
+    } catch (e) { console.log('localStorage save failed:', e); }
   }
-
   function loadFromLocal() {
     try {
       const e = localStorage.getItem('messEntries');
       const m = localStorage.getItem('messMeals');
       const x = localStorage.getItem('messExpenses');
+      const j = localStorage.getItem('messJoma');
       if (e) entries = JSON.parse(e) || [];
       if (m) meals = JSON.parse(m) || {};
       if (x) expenses = JSON.parse(x) || {};
-    } catch (err) {
-      console.log('localStorage load failed:', err);
-    }
+      if (j) joma = JSON.parse(j) || {};
+    } catch (err) { console.log('localStorage load failed:', err); }
   }
 
-  /* ===== Google Sheets auto-save (debounced) ===== */
+  /* ===== জমা ===== */
+  function getJoma(monthKey, name) {
+    return (joma[monthKey] && joma[monthKey][name]) || 0;
+  }
+  function setJoma(monthKey, name, value) {
+    if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
+    if (!joma[monthKey]) joma[monthKey] = {};
+    joma[monthKey][name] = Number(value) || 0;
+    save();
+  }
+  function onJomaChange(monthKey, name, val) {
+    if (!isAdmin) return;
+    setJoma(monthKey, name, val);
+    updateSubHeader();
+    updateMemberTable();
+    updateJomaHead();
+    autoSaveToSheets();
+  }
+
+  /* ===== auto-save ===== */
   let autoSaveTimer = null;
   let savingToastTimer = null;
-
   function showSavingToast(text) {
     const t = document.getElementById('savingToast');
+    if (!t) return;
     t.textContent = text;
     t.classList.add('show');
     if (savingToastTimer) clearTimeout(savingToastTimer);
     savingToastTimer = setTimeout(() => t.classList.remove('show'), 1800);
   }
-
   function autoSaveToSheets() {
     if (!isAdmin) return;
     if (API_URL.includes('YOUR_SCRIPT_ID')) return;
-
     if (autoSaveTimer) clearTimeout(autoSaveTimer);
     showSavingToast('☁️ সেভ হচ্ছে...');
-
-    autoSaveTimer = setTimeout(() => {
-      saveAllToSheets(true);
-    }, 2000);
+    autoSaveTimer = setTimeout(() => saveAllToSheets(true), 2000);
   }
 
-  /* ===== সেকশন কলাপ্স ===== */
+  /* ===== মাস ড্রপডাউন ===== */
+  function populateMonthDropdown() {
+    const dropdown = document.getElementById('monthDropdown');
+    if (!dropdown) return;
+
+    const monthSet = new Set();
+    monthSet.add(getSystemMonthKey());
+    Object.keys(meals).forEach(m => monthSet.add(m));
+    Object.keys(expenses).forEach(m => monthSet.add(m));
+    Object.keys(joma).forEach(m => monthSet.add(m));
+    entries.forEach(e => {
+      if (e.start) monthSet.add(e.start);
+      if (e.end) monthSet.add(e.end);
+    });
+
+    const sortedMonths = Array.from(monthSet).sort().reverse();
+    let html = '';
+    sortedMonths.forEach(m => {
+      const label = formatMonthBn(m);
+      const isCurrent = (m === getSystemMonthKey()) ? ' (বর্তমান)' : '';
+      const selected = (m === currentMonthKey()) ? 'selected' : '';
+      html += `<option value="${m}" ${selected}>${label}${isCurrent}</option>`;
+    });
+    dropdown.innerHTML = html;
+  }
+
+  function onMonthChange(newMonth) {
+    selectedMonth = newMonth;
+    render();
+    showSavingToast('📅 ' + formatMonthBn(newMonth) + ' দেখানো হচ্ছে');
+  }
+
+  /* ===== সেকশন টগল ===== */
   function toggleSection(bodyId, headId) {
     const body = document.getElementById(bodyId);
     const head = document.getElementById(headId);
+    if (!body || !head) return;
     const isOpen = body.classList.toggle('open');
     head.classList.toggle('collapsed', !isOpen);
   }
 
-  /* ===== সদস্য ফর্ম টগল ===== */
+  /* ===== ফর্ম ===== */
   function toggleForm() {
     if (!isAdmin) return;
     const box = document.getElementById('formBox');
     const sw  = document.getElementById('switch');
+    if (!box || !sw) return;
     const open = box.classList.toggle('open');
     sw.classList.toggle('active', open);
-    if (open) document.getElementById('nameInput').focus();
-    else resetForm();
+    if (open) {
+      const nameInp = document.getElementById('nameInput');
+      if (nameInp) nameInp.focus();
+    } else {
+      resetForm();
+    }
   }
   function openForm() {
-    document.getElementById('formBox').classList.add('open');
-    document.getElementById('switch').classList.add('active');
+    const box = document.getElementById('formBox');
+    const sw  = document.getElementById('switch');
+    if (box) box.classList.add('open');
+    if (sw) sw.classList.add('active');
   }
   function resetForm() {
-    document.getElementById('nameInput').value = '';
-    document.getElementById('amountInput').value = '';
-    document.getElementById('submitBtn').textContent = 'যোগ করুন';
+    const nameInp = document.getElementById('nameInput');
+    const startInp = document.getElementById('startInput');
+    const endInp = document.getElementById('endInput');
+    const amtInp = document.getElementById('amountInput');
+    const btn = document.getElementById('submitBtn');
+    if (nameInp) nameInp.value = '';
+    if (startInp) startInp.value = '';
+    if (endInp) endInp.value = '';
+    if (amtInp) amtInp.value = '';
+    if (btn) btn.textContent = 'যোগ করুন';
     editIndex = -1;
   }
 
@@ -572,37 +491,73 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
 
     const name = document.getElementById('nameInput').value.trim();
+    const startRaw = document.getElementById('startInput').value.trim();
+    const endRaw = document.getElementById('endInput').value.trim();
     const amountRaw = document.getElementById('amountInput').value;
     const amount = amountRaw === '' ? 0 : Number(amountRaw);
 
     if (!name) { alert('নাম লিখুন'); return; }
+
+    let start = startRaw;
+    if (start && !/^\d{4}-\d{2}$/.test(start)) {
+      alert('শুরুর মাস YYYY-MM ফরম্যাটে দিন (যেমন 2026-10)');
+      return;
+    }
+    if (!start) start = currentMonthKey();
+
+    let end = endRaw;
+    if (end && !/^\d{4}-\d{2}$/.test(end)) {
+      alert('শেষের মাস YYYY-MM ফরম্যাটে দিন (যেমন 2026-11)');
+      return;
+    }
 
     if (editIndex === -1) {
       if (entries.some(e => e.name === name)) {
         alert('এই নামে ইতিমধ্যে এন্ট্রি আছে');
         return;
       }
-      entries.push({ name, amount, meals: 0, expenses: 0, date: new Date().toISOString() });
+      entries.push({ name, start, end });
+      setJoma(currentMonthKey(), name, amount);
     } else {
+      const oldName = entries[editIndex].name;
       entries[editIndex].name = name;
-      entries[editIndex].amount = amount;
+      entries[editIndex].start = start;
+      entries[editIndex].end = end;
+      if (oldName !== name) {
+        Object.keys(joma).forEach(m => {
+          if (joma[m] && joma[m][oldName] !== undefined) {
+            joma[m][name] = joma[m][oldName];
+            delete joma[m][oldName];
+          }
+        });
+        Object.keys(meals).forEach(m => {
+          if (meals[m] && meals[m][oldName]) {
+            meals[m][name] = meals[m][oldName];
+            delete meals[m][oldName];
+          }
+        });
+      }
+      setJoma(currentMonthKey(), name, amount);
     }
 
     save();
     resetForm();
     render();
-
-    document.getElementById('formBox').classList.remove('open');
-    document.getElementById('switch').classList.remove('active');
-
+    const box = document.getElementById('formBox');
+    const sw = document.getElementById('switch');
+    if (box) box.classList.remove('open');
+    if (sw) sw.classList.remove('active');
     saveAllToSheets(true);
   }
 
   function editEntry(index) {
     if (!isAdmin) { alert('শুধু অ্যাডমিন এডিট করতে পারবেন'); return; }
     const e = entries[index];
+    if (!e) return;
     document.getElementById('nameInput').value = e.name;
-    document.getElementById('amountInput').value = e.amount;
+    document.getElementById('startInput').value = e.start || '';
+    document.getElementById('endInput').value = e.end || '';
+    document.getElementById('amountInput').value = getJoma(currentMonthKey(), e.name);
     document.getElementById('submitBtn').textContent = 'আপডেট করুন';
     editIndex = index;
     openForm();
@@ -610,18 +565,65 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function deleteEntry(index) {
-    if (!isAdmin) { alert('শুধু অ্যাডমিন ডিলিট করতে পারবেন'); return; }
-    if (confirm('এই এন্ট্রিটি মুছে ফেলবেন?')) {
-      entries.splice(index, 1);
-      if (editIndex === index) resetForm();
-      save();
-      render();
-      saveAllToSheets(true);
-    }
+  /* ===== সদস্য চলে গেল ===== */
+  function markLeft(index) {
+    if (!isAdmin) return;
+    const e = entries[index];
+    if (!e) return;
+    const nextMonth = getNextMonthKey(currentMonthKey());
+    if (!confirm('"' + e.name + '" কে ' + formatMonthBn(nextMonth) + ' থেকে চলে গেছে হিসেবে চিহ্নিত করবেন?')) return;
+    entries[index].end = currentMonthKey();
+    save();
+    render();
+    saveAllToSheets(true);
+    alert('"' + e.name + '" ' + formatMonthBn(currentMonthKey()) + ' পর্যন্ত সদস্য হিসেবে থাকবেন।');
   }
 
-  /* ===== মিল ডেটা ===== */
+  function getNextMonthKey(mk) {
+    const parts = mk.split('-');
+    let y = Number(parts[0]);
+    let m = Number(parts[1]) + 1;
+    if (m > 12) { m = 1; y++; }
+    return y + '-' + String(m).padStart(2, '0');
+  }
+
+  /* ===== সদস্য ফিরে এলো ===== */
+  function markReturned(index) {
+    if (!isAdmin) return;
+    const e = entries[index];
+    if (!e) return;
+    if (!confirm('"' + e.name + '" আবার সদস্য হিসেবে ফিরে এসেছেন?')) return;
+    entries[index].end = '';
+    save();
+    render();
+    saveAllToSheets(true);
+    alert('"' + e.name + '" আবার সক্রিয় সদস্য হয়েছেন।');
+  }
+
+  /* ===== সদস্য সম্পূর্ণ মুছি ===== */
+  function deleteEntry(index) {
+    if (!isAdmin) { alert('শুধু অ্যাডমিন ডিলিট করতে পারবেন'); return; }
+    const e = entries[index];
+    if (!e) return;
+    const name = e.name;
+    if (!confirm('⚠️ "' + name + '" কে সম্পূর্ণ মুছে ফেলবেন?\n\nসব মাসের জমা ও মিল ডেটাও মুছে যাবে!\n\nএটা ফিরিয়ে আনা যাবে না।')) return;
+
+    Object.keys(joma).forEach(m => {
+      if (joma[m] && joma[m][name] !== undefined) delete joma[m][name];
+    });
+    Object.keys(meals).forEach(m => {
+      if (meals[m] && meals[m][name]) delete meals[m][name];
+    });
+    entries.splice(index, 1);
+    if (editIndex === index) resetForm();
+
+    save();
+    render();
+    saveAllToSheets(true);
+    alert('"' + name + '" সম্পূর্ণ মুছে গেছে।');
+  }
+
+  /* ===== মিল ===== */
   function getMeal(monthKey, name, day) {
     return (meals[monthKey] && meals[monthKey][name] && meals[monthKey][name][day]) || 0;
   }
@@ -645,7 +647,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     autoSaveToSheets();
   }
 
-  /* ===== খরচ ডেটা ===== */
+  /* ===== খরচ ===== */
   function getExpense(monthKey, day) {
     return (expenses[monthKey] && expenses[monthKey][day]) || { desc: '', amount: '' };
   }
@@ -673,7 +675,8 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   function getTotalKhoroch() {
     const monthKey = currentMonthKey();
     let total = 0;
-    for (let d = 1; d <= daysInCurrentMonth(); d++) {
+    const days = daysInCurrentMonth();
+    for (let d = 1; d <= days; d++) {
       const e = getExpense(monthKey, d);
       total += Number(e.amount) || 0;
     }
@@ -681,67 +684,71 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   }
   function updateKhorochTotals() {
     const total = getTotalKhoroch();
-    document.getElementById('khorochTotalHead').textContent = '৳ ' + toBn(total);
-    const cell = document.getElementById('khorochTotalCell');
-    if (cell) cell.textContent = '৳ ' + toBn(total);
+    setText('khorochTotalHead', '৳ ' + toBn(total));
+    setText('khorochTotalCell', '৳ ' + toBn(total));
   }
 
   /* ===== মিল টোটাল ===== */
   function getPersonMealTotal(monthKey, name) {
     let t = 0;
-    for (let d = 1; d <= daysInCurrentMonth(); d++) {
-      t += getMeal(monthKey, name, d);
-    }
+    const days = daysInMonth(monthKey);
+    for (let d = 1; d <= days; d++) t += getMeal(monthKey, name, d);
     return t;
   }
   function updateMealTotals() {
     const monthKey = currentMonthKey();
+    const members = getMembersInMonth(monthKey);
     let grand = 0;
-    entries.forEach(e => {
+    members.forEach(e => {
       const personTotal = getPersonMealTotal(monthKey, e.name);
       grand += personTotal;
-      const cell = document.getElementById('total-' + safeId(e.name));
-      if (cell) cell.textContent = toBn(personTotal);
+      setText('total-' + safeId(e.name), toBn(personTotal));
     });
-    document.getElementById('mealTotalHead').textContent = toBn(grand);
+    setText('mealTotalHead', toBn(grand));
     return grand;
   }
 
-  /* ===== সেকেন্ড হেডার ===== */
+  function updateJomaHead() {
+    const monthKey = currentMonthKey();
+    const members = getMembersInMonth(monthKey);
+    let total = 0;
+    members.forEach(e => total += getJoma(monthKey, e.name));
+    setText('jomaTotalHead', '৳ ' + toBn(total));
+    setText('jomaCount', toBn(members.length));
+  }
+
   function updateSubHeader() {
     const monthKey = currentMonthKey();
+    const members = getMembersInMonth(monthKey);
     let grandMeal = 0;
-    entries.forEach(e => {
-      grandMeal += getPersonMealTotal(monthKey, e.name);
-    });
-    document.getElementById('headerTotalMeal').textContent = toBn(grandMeal);
+    members.forEach(e => grandMeal += getPersonMealTotal(monthKey, e.name));
+    setText('headerTotalMeal', toBn(grandMeal));
 
     const totalKhoroch = getTotalKhoroch();
     let perMeal = 0;
     if (grandMeal > 0) perMeal = totalKhoroch / grandMeal;
-
     let perMealText = '০.০০';
-    if (perMeal > 0) {
-      perMealText = toBnDecimal(perMeal, 2);
-    }
-    document.getElementById('perMealCost').textContent = '৳ ' + perMealText;
+    if (perMeal > 0) perMealText = toBnDecimal(perMeal, 2);
+    setText('perMealCost', '৳ ' + perMealText);
 
     let totalJoma = 0;
-    entries.forEach(e => totalJoma += Number(e.amount));
-    document.getElementById('totalJoma').textContent = '৳ ' + toBn(totalJoma);
-    document.getElementById('totalKhoroch').textContent = '৳ ' + toBn(totalKhoroch);
-    document.getElementById('totalOboshishto').textContent = '৳ ' + toBn(totalJoma - totalKhoroch);
+    members.forEach(e => totalJoma += getJoma(monthKey, e.name));
+    setText('totalJoma', '৳ ' + toBn(totalJoma));
+    setText('totalKhoroch', '৳ ' + toBn(totalKhoroch));
+    setText('totalOboshishto', '৳ ' + toBn(totalJoma - totalKhoroch));
   }
 
   /* ===== মিল টেবিল ===== */
   function renderMealTable() {
     const monthKey = currentMonthKey();
     const days = daysInCurrentMonth();
+    const members = getMembersInMonth(monthKey);
     const thead = document.getElementById('mealThead');
     const tbody = document.getElementById('mealTbody');
+    if (!thead || !tbody) return;
 
     let headRow = '<tr><th>তারিখ</th>';
-    entries.forEach(e => { headRow += `<th>${e.name}</th>`; });
+    members.forEach(e => { headRow += `<th>${e.name}</th>`; });
     headRow += '</tr>';
     thead.innerHTML = headRow;
 
@@ -749,7 +756,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     for (let d = 1; d <= days; d++) {
       bodyHtml += `<tr>`;
       bodyHtml += `<td class="date-cell">${formatDayBn(d)}</td>`;
-      entries.forEach(e => {
+      members.forEach(e => {
         const stored = meals[monthKey] && meals[monthKey][e.name] && meals[monthKey][e.name][d];
         const val = (stored !== undefined && stored !== null) ? stored : '';
         bodyHtml += `<td>
@@ -764,9 +771,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     }
 
     bodyHtml += `<tr class="meal-total-row"><td>মোট মিল</td>`;
-    entries.forEach(e => {
-      bodyHtml += `<td id="total-${safeId(e.name)}">০</td>`;
-    });
+    members.forEach(e => { bodyHtml += `<td id="total-${safeId(e.name)}">০</td>`; });
     bodyHtml += `</tr>`;
 
     tbody.innerHTML = bodyHtml;
@@ -778,6 +783,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     const monthKey = currentMonthKey();
     const days = daysInCurrentMonth();
     const tbody = document.getElementById('khorochTbody');
+    if (!tbody) return;
     let html = '';
 
     for (let d = 1; d <= days; d++) {
@@ -786,21 +792,8 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
       const amtVal = (e.amount === 0 || e.amount) ? e.amount : '';
       html += `<tr>
         <td class="date-cell">${formatDayBn(d)}</td>
-        <td>
-          <input type="text" class="meal-input khoroch-input-desc"
-            value="${descVal}"
-            placeholder="বিবরণ..."
-            ${isAdmin ? '' : 'disabled'}
-            onchange="onExpenseChange('${monthKey}',${d},'desc',this.value)" />
-        </td>
-        <td>
-          <input type="number" class="meal-input khoroch-input-amount"
-            value="${amtVal}"
-            placeholder="0"
-            ${isAdmin ? '' : 'disabled'}
-            onchange="onExpenseChange('${monthKey}',${d},'amount',this.value)"
-            onfocus="this.select()" />
-        </td>
+        <td><input type="text" class="meal-input khoroch-input-desc" value="${descVal}" placeholder="বিবরণ..." ${isAdmin ? '' : 'disabled'} onchange="onExpenseChange('${monthKey}',${d},'desc',this.value)" /></td>
+        <td><input type="number" class="meal-input khoroch-input-amount" value="${amtVal}" placeholder="0" ${isAdmin ? '' : 'disabled'} onchange="onExpenseChange('${monthKey}',${d},'amount',this.value)" onfocus="this.select()" /></td>
       </tr>`;
     }
 
@@ -814,56 +807,48 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     updateKhorochTotals();
   }
 
-  /* ===== সদস্যের হিসাব ===== */
+  /* ===== সদস্য টেবিল ===== */
   function updateMemberTable() {
     const monthKey = currentMonthKey();
+    const members = getMembersInMonth(monthKey);
     const tbody = document.getElementById('memberTbody');
-    document.getElementById('memberCount').textContent = toBn(entries.length);
+    if (!tbody) return;
+    setText('memberCount', toBn(members.length));
 
     let grandMeal = 0;
-    entries.forEach(e => grandMeal += getPersonMealTotal(monthKey, e.name));
+    members.forEach(e => grandMeal += getPersonMealTotal(monthKey, e.name));
     const totalKhoroch = getTotalKhoroch();
     const perMeal = grandMeal > 0 ? totalKhoroch / grandMeal : 0;
 
-    if (entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty">এখনো কোনো সদস্য নেই</td></tr>`;
+    if (members.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">এই মাসে কোনো সদস্য নেই</td></tr>`;
       return;
     }
 
     let html = '';
     let sumMeal = 0, sumCost = 0, sumJoma = 0, sumBaki = 0;
 
-    entries.forEach(e => {
+    members.forEach(e => {
       const personMeal = getPersonMealTotal(monthKey, e.name);
       const personCost = personMeal * perMeal;
-      const joma = Number(e.amount) || 0;
-      const baki = personCost - joma;
+      const personJoma = getJoma(monthKey, e.name);
+      const baki = personCost - personJoma;
 
       sumMeal += personMeal;
       sumCost += personCost;
-      sumJoma += joma;
+      sumJoma += personJoma;
       sumBaki += baki;
 
       let bakiClass, bakiText, badge;
-      if (baki > 0.5) {
-        bakiClass = 'member-baki';
-        bakiText = '৳ ' + toBn(Math.round(baki));
-        badge = '<span class="status-badge badge-baki">বাকি</span>';
-      } else if (baki < -0.5) {
-        bakiClass = 'member-return';
-        bakiText = '৳ ' + toBn(Math.round(Math.abs(baki)));
-        badge = '<span class="status-badge badge-return">ফেরত</span>';
-      } else {
-        bakiClass = 'member-equal';
-        bakiText = '৳ ০';
-        badge = '<span class="status-badge badge-equal">সমান</span>';
-      }
+      if (baki > 0.5) { bakiClass = 'member-baki'; bakiText = '৳ ' + toBn(Math.round(baki)); badge = '<span class="status-badge badge-baki">বাকি</span>'; }
+      else if (baki < -0.5) { bakiClass = 'member-return'; bakiText = '৳ ' + toBn(Math.round(Math.abs(baki))); badge = '<span class="status-badge badge-return">ফেরত</span>'; }
+      else { bakiClass = 'member-equal'; bakiText = '৳ ০'; badge = '<span class="status-badge badge-equal">সমান</span>'; }
 
       html += `<tr>
         <td class="member-name">${e.name}</td>
         <td class="member-meal">${toBn(personMeal)}</td>
         <td class="member-cost">৳ ${toBn(Math.round(personCost))}</td>
-        <td class="member-joma">৳ ${toBn(joma)}</td>
+        <td class="member-joma">৳ ${toBn(personJoma)}</td>
         <td class="${bakiClass}">${bakiText}</td>
         <td>${badge}</td>
       </tr>`;
@@ -886,52 +871,78 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     tbody.innerHTML = html;
   }
 
-  /* ===== মূল রেন্ডার ===== */
-  function render() {
+  /* ===== জমা টেবিল ===== */
+  function renderJomaTable() {
+    const monthKey = currentMonthKey();
+    const members = getMembersInMonth(monthKey);
     const tbody = document.getElementById('tableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
-    if (entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" class="empty">এখনো কোনো সদস্য যোগ করা হয়নি</td></tr>`;
-    } else {
-      entries.forEach((e, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>
-            <span class="name-cell">${e.name}</span>
-            <span class="date-small">${formatDate(e.date)}</span>
-          </td>
-          <td class="amount-cell">৳ ${toBn(e.amount)}</td>
-          <td class="admin-only" style="text-align:right; width:1%; white-space:nowrap;">
-            <div class="actions">
-              <button class="btn-sm btn-edit" onclick="editEntry(${i})">এডিট</button>
-              <button class="btn-sm btn-del"  onclick="deleteEntry(${i})">মুছুন</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+    if (members.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="empty">এই মাসে কোনো সদস্য নেই</td></tr>`;
+      updateJomaHead();
+      return;
     }
 
-    // ★ নাম ও জমার হিসাবের কাউন্ট আপডেট
-    document.getElementById('jomaCount').textContent = toBn(entries.length);
+    members.forEach(m => {
+      const i = entries.findIndex(e => e.name === m.name);
+      const personJoma = getJoma(monthKey, m.name);
+      const isLeaving = m.end && m.end === monthKey;
+      
+      let dateText = 'শুরু: ' + formatMonthBn(m.start);
+      if (m.end) dateText += ' | শেষ: ' + formatMonthBn(m.end);
+      if (isLeaving) dateText += ' ⚠️ এই মাস শেষ';
 
-    renderMealTable();
-    renderKhorochTable();
-    updateSubHeader();
-    updateMemberTable();
-    updateAdminUI();
-    save();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <span class="name-cell">${m.name}</span>
+          <span class="date-small ${isLeaving ? 'inactive' : ''}">${dateText}</span>
+        </td>
+        <td>
+          <input type="number" class="joma-input"
+            value="${personJoma || ''}"
+            placeholder="0"
+            ${isAdmin ? '' : 'disabled'}
+            onchange="onJomaChange('${monthKey}','${m.name.replace(/'/g,"\\'")}',this.value)"
+            onfocus="this.select()" />
+        </td>
+        <td class="admin-only" style="text-align:right; width:1%; white-space:nowrap;">
+          <div class="actions">
+            <button class="btn-sm btn-edit" onclick="editEntry(${i})">এডিট</button>
+            ${m.end 
+              ? `<button class="btn-sm btn-back" onclick="markReturned(${i})">ফিরে এসেছে</button>`
+              : `<button class="btn-sm btn-leave" onclick="markLeft(${i})">চলে গেছে</button>`
+            }
+            <button class="btn-sm btn-del" onclick="deleteEntry(${i})">মুছুন</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    updateJomaHead();
   }
 
-  function formatDate(iso) {
-    if (!iso) return '';
-    const d = new Date(iso);
-    if (isNaN(d)) return '';
-    return `${d.getDate()} ${d.toLocaleString('bn-BD',{month:'short'})} ${d.getFullYear()}`;
+  /* ===== মূল রেন্ডার ===== */
+  function render() {
+    try {
+      renderJomaTable();
+      renderMealTable();
+      renderKhorochTable();
+      updateSubHeader();
+      updateMemberTable();
+      updateAdminUI();
+      populateMonthDropdown();
+      save();
+      window._lastRenderedMonth = currentMonthKey();
+    } catch (err) {
+      console.error('❌ render() failed:', err);
+    }
   }
 
-  /* ===== অ্যাডমিন সিস্টেম ===== */
+  /* ===== অ্যাডমিন ===== */
   function toggleAdmin() {
     if (isAdmin) {
       isAdmin = false;
@@ -956,7 +967,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   function updateAdminUI() {
     const badge = document.getElementById('adminBadge');
     const btn = document.getElementById('loginBtn');
-
+    if (!badge || !btn) return;
     if (isAdmin) {
       badge.textContent = '🔓 Admin';
       badge.classList.add('on');
@@ -970,16 +981,20 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     }
   }
 
-  /* ===== Google Sheets থেকে লোড ===== */
+  /* ===== লোড ===== */
   async function loadFromSheets() {
     const loadingMsg = document.getElementById('loadingMsg');
-    loadingMsg.style.display = 'block';
-    loadingMsg.textContent = 'Google Sheets থেকে ডেটা লোড হচ্ছে...';
-    loadingMsg.style.color = '#718096';
+    if (loadingMsg) {
+      loadingMsg.style.display = 'block';
+      loadingMsg.textContent = 'Google Sheets থেকে ডেটা লোড হচ্ছে...';
+      loadingMsg.style.color = '#718096';
+    }
 
     if (API_URL.includes('YOUR_SCRIPT_ID')) {
-      loadingMsg.textContent = '⚠️ আগে API_URL সেট করুন';
-      loadingMsg.style.color = '#c53030';
+      if (loadingMsg) {
+        loadingMsg.textContent = '⚠️ আগে API_URL সেট করুন';
+        loadingMsg.style.color = '#c53030';
+      }
       return;
     }
 
@@ -988,24 +1003,25 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
       const result = await res.json();
 
       if (result.status === 'success') {
-        // === Members ===
         const rows = result.members || [];
         const newEntries = [];
         for (let i = 1; i < rows.length; i++) {
           const r = rows[i];
-          if (r[0]) {
-            newEntries.push({
-              name: r[0],
-              amount: Number(r[1]) || 0,
-              meals: Number(r[2]) || 0,
-              expenses: Number(r[3]) || 0,
-              date: r[4] || new Date().toISOString()
-            });
-          }
-        }
-        if (newEntries.length > 0) entries = newEntries;
+          const name = (r[0] || '').toString().trim();
+          if (!name) continue;
 
-        // === Meals ===
+          let start = (r[1] || '').toString().trim();
+          let end = (r[2] || '').toString().trim();
+          
+          if (start && !/^\d{4}-\d{2}$/.test(start)) start = '';
+          if (end && !/^\d{4}-\d{2}$/.test(end)) end = '';
+          
+          if (!start) start = getSystemMonthKey();
+
+          newEntries.push({ name, start, end });
+        }
+        entries = newEntries;
+
         const mealRows = result.meals || [];
         const newMeals = {};
         for (let i = 1; i < mealRows.length; i++) {
@@ -1020,7 +1036,6 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
         }
         meals = newMeals;
 
-        // === Expenses ===
         const expRows = result.expenses || [];
         const newExp = {};
         for (let i = 1; i < expRows.length; i++) {
@@ -1031,25 +1046,44 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
           if (!newExp[m]) newExp[m] = {};
           newExp[m][d] = {
             desc: r[2] || '',
-            amount: Number(r[3]) || ''
+            amount: (r[3] === '' || r[3] === null || r[3] === undefined) ? '' : Number(r[3]) || 0
           };
         }
         expenses = newExp;
 
+        const jomaRows = result.joma || [];
+        const newJoma = {};
+        for (let i = 1; i < jomaRows.length; i++) {
+          const r = jomaRows[i];
+          if (!r[0] || !r[1]) continue;
+          const m = String(r[0]);
+          const n = String(r[1]);
+          if (!newJoma[m]) newJoma[m] = {};
+          newJoma[m][n] = Number(r[2]) || 0;
+        }
+        joma = newJoma;
+
         save();
         render();
-        loadingMsg.style.display = 'none';
+        if (loadingMsg) loadingMsg.style.display = 'none';
       } else {
-        loadingMsg.textContent = '⚠️ ডেটা লোড ব্যর্থ: ' + (result.message || '');
-        loadingMsg.style.color = '#c53030';
+        if (loadingMsg) {
+          loadingMsg.textContent = '⚠️ ডেটা লোড ব্যর্থ: ' + (result.message || '');
+          loadingMsg.style.color = '#c53030';
+        }
+        render();
       }
     } catch (e) {
-      loadingMsg.textContent = '⚠️ লোড ব্যর্থ: ' + e.message;
-      loadingMsg.style.color = '#c53030';
+      if (loadingMsg) {
+        loadingMsg.textContent = '⚠️ লোড ব্যর্থ: ' + e.message;
+        loadingMsg.style.color = '#c53030';
+      }
+      console.error('❌ loadFromSheets failed:', e);
+      render();
     }
   }
 
-  /* ===== Google Sheets-এ সেভ ===== */
+  /* ===== সেভ ===== */
   async function saveAllToSheets(silent) {
     if (!isAdmin) {
       if (!silent) alert('শুধু অ্যাডমিন সেভ করতে পারবেন');
@@ -1062,10 +1096,8 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
     const rows = entries.map(e => ({
       name: e.name,
-      joma: Number(e.amount) || 0,
-      meals: Number(e.meals) || 0,
-      expenses: Number(e.expenses) || 0,
-      date: e.date || ''
+      start: e.start || '',
+      end: e.end || ''
     }));
 
     const payload = {
@@ -1073,7 +1105,8 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
       action: 'replaceAll',
       rows: rows,
       meals: meals,
-      expenses: expenses
+      expenses: expenses,
+      joma: joma
     };
 
     try {
@@ -1089,38 +1122,82 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
           alert('✅ Google Sheets-এ সেভ হয়েছে\n' +
             'সদস্য: ' + (result.counts?.members || 0) + '\n' +
             'মিল: ' + (result.counts?.meals || 0) + '\n' +
-            'খরচ: ' + (result.counts?.expenses || 0));
+            'খরচ: ' + (result.counts?.expenses || 0) + '\n' +
+            'জমা: ' + (result.counts?.joma || 0));
         } else {
           showSavingToast('✅ সেভ হয়েছে');
         }
       } else {
         if (!silent) alert('❌ সেভ ব্যর্থ: ' + (result.message || 'unknown'));
-        else console.log('Save failed:', result.message);
+        else { console.log('Save failed:', result.message); showSavingToast('❌ সেভ ব্যর্থ: ' + (result.message || 'unknown')); }
       }
     } catch (e) {
       if (!silent) alert('❌ সেভ ব্যর্থ: ' + e.message);
-      else console.log('Auto-save failed:', e);
+      else { console.log('Auto-save failed:', e); showSavingToast('❌ নেটওয়ার্ক সমস্যা — সেভ হয়নি'); }
     }
   }
 
   /* ===== Enter কী ===== */
-  document.getElementById('amountInput').addEventListener('keypress', e => {
+  const amountInp = document.getElementById('amountInput');
+  const nameInp = document.getElementById('nameInput');
+  if (amountInp) amountInp.addEventListener('keypress', e => {
     if (e.key === 'Enter') saveEntry();
   });
-  document.getElementById('nameInput').addEventListener('keypress', e => {
-    if (e.key === 'Enter') document.getElementById('amountInput').focus();
+  if (nameInp) nameInp.addEventListener('keypress', e => {
+    if (e.key === 'Enter') {
+      const startInp = document.getElementById('startInput');
+      if (startInp) startInp.focus();
+    }
   });
 
   /* ===== পেজ লোড ===== */
   window.addEventListener('load', () => {
+    selectedMonth = getSystemMonthKey();
     if (localStorage.getItem('isAdminKey') === SECRET_KEY) {
       isAdmin = true;
       document.body.classList.add('is-admin');
     }
     loadFromLocal();
     render();
-    loadFromSheets();
+    loadFromSheets().then(() => {
+      render();
+    });
   });
+
+  /* ===== অটো মাস ডিটেক্ট (কোনো অ্যানিমেশন নেই) ===== */
+  (function autoMonthDetect() {
+    let lastSystemMonth = getSystemMonthKey();
+    let isReloading = false;
+
+    function checkMonth() {
+      if (isReloading) return;
+      const nowSystem = getSystemMonthKey();
+      if (nowSystem !== lastSystemMonth) {
+        const wasViewingCurrent = (currentMonthKey() === lastSystemMonth);
+        lastSystemMonth = nowSystem;
+
+        if (wasViewingCurrent) {
+          isReloading = true;
+          selectedMonth = nowSystem;
+          showSavingToast('🎉 নতুন মাস শুরু হয়েছে! ডেটা রিফ্রেশ হচ্ছে...');
+          setTimeout(() => {
+            loadFromSheets().finally(() => { isReloading = false; });
+          }, 500);
+        } else {
+          showSavingToast('🎉 নতুন মাস শুরু! ড্রপডাউনে যোগ হয়েছে');
+          populateMonthDropdown();
+        }
+      }
+    }
+
+    setInterval(checkMonth, 60000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) checkMonth();
+    });
+    window.addEventListener('focus', checkMonth);
+    setTimeout(checkMonth, 5000);
+  })();
+
 </script>
 </body>
 </html>
