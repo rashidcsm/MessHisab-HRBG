@@ -179,7 +179,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 </head>
 <body>
 
-  <h1>🏠মেস হিসাব হারবাং</h1>
+  <h1>🏠মেস হিসেব হারবাং</h1>
 
   <div class="admin-bar">
     <span class="admin-badge" id="adminBadge">🔒 Viewer</span>
@@ -329,8 +329,9 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
      ★★★ আপনার তথ্য ★★★
      ========================================================= */
   const API_URL = "https://script.google.com/macros/s/AKfycbwJiOIn5hG35UZOfLCJNq4-ITo_0agbgwkF0ILsYld9bifjYu4R7EcKTO9QO2IQC16vsQ/exec";
-  const SECRET_KEY = "wasi";
+  /* অ্যাডমিন পাসওয়ার্ড এখন কোডে নেই; Apps Script-এ যাচাই হয় */
   /* ========================================================= */
+  let adminKey = '';
 
   let entries = [];
   let meals   = {};
@@ -1038,22 +1039,43 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   }
 
   /* ===== অ্যাডমিন (prompt/alert ছাড়া) ===== */
+  /* সার্ভারে (Apps Script) পাসওয়ার্ড যাচাই */
+  async function verifyKey(key) {
+    try {
+      const result = await httpRequest('POST', API_URL, JSON.stringify({ action: 'login', key: key }));
+      return result.status === 'success';
+    } catch (e) {
+      return null; /* নেটওয়ার্ক সমস্যা */
+    }
+  }
+
+  function doLogout(msg) {
+    isAdmin = false;
+    adminKey = '';
+    lsRemove('isAdminKey');
+    document.body.classList.remove('is-admin');
+    if (msg) showSavingToast(msg);
+  }
+
   async function toggleAdmin() {
     if (isAdmin) {
-      isAdmin = false;
-      lsRemove('isAdminKey');
-      document.body.classList.remove('is-admin');
-      showSavingToast('লগআউট সম্পন্ন');
+      doLogout('লগআউট সম্পন্ন');
     } else {
       const key = await showPrompt('Admin Key দিন:');
-      if (key === null) return;
-      if (key === SECRET_KEY) {
+      if (key === null || key === '') return;
+      showSavingToast('🔄 যাচাই হচ্ছে...');
+      const ok = await verifyKey(key);
+      if (ok === true) {
         isAdmin = true;
-        lsSet('isAdminKey', SECRET_KEY);
+        adminKey = key;
+        lsSet('isAdminKey', key);
         document.body.classList.add('is-admin');
         showSavingToast('✅ অ্যাডমিন মোড চালু হয়েছে');
-      } else {
+      } else if (ok === false) {
         await showAlert('❌ ভুল key');
+        return;
+      } else {
+        await showAlert('⚠️ সার্ভারে যোগাযোগ করা যায়নি। ইন্টারনেট চেক করুন।');
         return;
       }
     }
@@ -1075,6 +1097,21 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
       btn.textContent = 'অ্যাডমিন লগইন';
       document.body.classList.remove('is-admin');
     }
+  }
+
+  /* ===== শিটের মান থেকে "YYYY-MM" বের করা =====
+     Google Sheets "2026-10" লিখলে তারিখ বানিয়ে ফেলে, যা সার্ভার থেকে
+     "2026-09-30T18:00:00.000Z"-এর মতো আসে। সেটাও এখানে ঠিক করা হয়। */
+  function parseMonthKey(v) {
+    if (v === null || v === undefined || v === '') return '';
+    const s = String(v).trim();
+    if (/^\d{4}-\d{2}$/.test(s)) return s;
+    if (/^\d{4}-\d{1}$/.test(s)) return s.slice(0, 5) + '0' + s.slice(5);
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    }
+    return '';
   }
 
   /* ===== লোড ===== */
@@ -1100,18 +1137,17 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
       if (result.status === 'success') {
         const rows = result.members || [];
         const newEntries = [];
-        for (let i = 1; i < rows.length; i++) {
+        for (let i = 0; i < rows.length; i++) {
           const r = rows[i];
-          const name = (r[0] || '').toString().trim();
+          if (!r) continue;
+          const name = (r[0] == null ? '' : r[0]).toString().trim();
           if (!name) continue;
+          /* হেডার সারি (নাম/Name ইত্যাদি) বাদ */
+          if (i === 0 && /^(name|নাম|member|সদস্য)$/i.test(name)) continue;
 
-          let start = (r[1] || '').toString().trim();
-          let end = (r[2] || '').toString().trim();
-
-          if (start && !/^\d{4}-\d{2}$/.test(start)) start = '';
-          if (end && !/^\d{4}-\d{2}$/.test(end)) end = '';
-
-          if (!start) start = getSystemMonthKey();
+          /* শিট তারিখে রূপান্তর করলেও YYYY-MM বের করে */
+          const start = parseMonthKey(r[1]);
+          const end = parseMonthKey(r[2]);
 
           newEntries.push({ name, start, end });
         }
@@ -1119,10 +1155,11 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
         const mealRows = result.meals || [];
         const newMeals = {};
-        for (let i = 1; i < mealRows.length; i++) {
+        for (let i = 0; i < mealRows.length; i++) {
           const r = mealRows[i];
-          if (!r[0]) continue;
-          const m = String(r[0]);
+          if (!r || !r[0]) continue;
+          if (isNaN(Number(r[2])) || r[2] === '' || r[3] === undefined) continue; /* হেডার/ফাঁকা সারি */
+          const m = parseMonthKey(r[0]) || String(r[0]);
           const n = String(r[1]);
           const d = String(r[2]);
           if (!newMeals[m]) newMeals[m] = {};
@@ -1133,10 +1170,11 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
         const expRows = result.expenses || [];
         const newExp = {};
-        for (let i = 1; i < expRows.length; i++) {
+        for (let i = 0; i < expRows.length; i++) {
           const r = expRows[i];
-          if (!r[0]) continue;
-          const m = String(r[0]);
+          if (!r || !r[0]) continue;
+          if (isNaN(Number(r[1])) || r[1] === '') continue; /* হেডার সারি */
+          const m = parseMonthKey(r[0]) || String(r[0]);
           const d = String(r[1]);
           if (!newExp[m]) newExp[m] = {};
           newExp[m][d] = {
@@ -1148,10 +1186,11 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
         const jomaRows = result.joma || [];
         const newJoma = {};
-        for (let i = 1; i < jomaRows.length; i++) {
+        for (let i = 0; i < jomaRows.length; i++) {
           const r = jomaRows[i];
-          if (!r[0] || !r[1]) continue;
-          const m = String(r[0]);
+          if (!r || !r[0] || !r[1]) continue;
+          if (isNaN(Number(r[2])) || r[2] === '') continue; /* হেডার সারি */
+          const m = parseMonthKey(r[0]) || String(r[0]);
           const n = String(r[1]);
           if (!newJoma[m]) newJoma[m] = {};
           newJoma[m][n] = Number(r[2]) || 0;
@@ -1160,7 +1199,21 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
 
         save();
         render();
-        if (loadingMsg) loadingMsg.style.display = 'none';
+        if (loadingMsg && location.search.indexOf('debug') === -1) {
+          loadingMsg.style.display = 'none';
+        } else if (loadingMsg) {
+          /* ডিবাগ লাইন: শুধু URL-এর শেষে ?debug দিলে দেখা যাবে */
+          var cnt = 0, mealCnt = 0, jomaCnt = 0;
+          Object.keys(meals).forEach(function (mk) { Object.keys(meals[mk]).forEach(function (nm) { mealCnt += Object.keys(meals[mk][nm]).length; }); });
+          Object.keys(joma).forEach(function (mk) { jomaCnt += Object.keys(joma[mk]).length; });
+          cnt = entries.length;
+          loadingMsg.style.display = 'block';
+          loadingMsg.style.color = '#718096';
+          loadingMsg.textContent = '✅ v3 | সার্ভার সারি → সদস্য ' + rows.length + ', মিল ' + mealRows.length +
+            ', জমা ' + jomaRows.length + ' | পড়া হয়েছে → সদস্য ' + cnt + ', মিল ' + mealCnt + ', জমা ' + jomaCnt +
+            ' | সদস্যের প্রথম সারি: ' + JSON.stringify(rows[0] || []).slice(0, 80) +
+            ' | মিলের প্রথম সারি: ' + JSON.stringify(mealRows[0] || []).slice(0, 80);
+        }
       } else {
         if (loadingMsg) {
           loadingMsg.textContent = '⚠️ ডেটা লোড ব্যর্থ: ' + (result.message || '');
@@ -1196,7 +1249,7 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
     }));
 
     const payload = {
-      key: SECRET_KEY,
+      key: adminKey,
       action: 'replaceAll',
       rows: rows,
       meals: meals,
@@ -1218,6 +1271,10 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
         } else {
           showSavingToast('✅ সেভ হয়েছে');
         }
+      } else if (String(result.message || '').indexOf('Unauthorized') !== -1) {
+        doLogout();
+        render();
+        showAlert('❌ Admin Key ভুল বা পরিবর্তিত। আবার লগইন করুন।');
       } else {
         if (!silent) showAlert('❌ সেভ ব্যর্থ: ' + (result.message || 'unknown'));
         else { console.log('Save failed:', result.message); showSavingToast('❌ সেভ ব্যর্থ: ' + (result.message || 'unknown')); }
@@ -1244,13 +1301,23 @@ body.is-admin .btn-save-sheet.admin-only { display: inline-block !important; }
   /* ===== পেজ লোড ===== */
   window.addEventListener('load', () => {
     selectedMonth = getSystemMonthKey();
-    if (lsGet('isAdminKey') === SECRET_KEY) {
-      isAdmin = true;
-      document.body.classList.add('is-admin');
-    }
     loadFromLocal();
     render();
     loadFromSheets();
+
+    /* সংরক্ষিত key থাকলে সার্ভারে যাচাই করে অটো-লগইন */
+    const savedKey = lsGet('isAdminKey');
+    if (savedKey) {
+      verifyKey(savedKey).then(ok => {
+        if (ok === true) {
+          isAdmin = true;
+          adminKey = savedKey;
+          render();
+        } else if (ok === false) {
+          lsRemove('isAdminKey');
+        }
+      });
+    }
   });
 
   /* ===== অটো মাস ডিটেক্ট ===== */
